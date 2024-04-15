@@ -1,0 +1,13 @@
+Sleep tracker
+
+
+2024-03-27 15:40:00 - 2024-03-27 19:45:00 (4.1 hours)
+2024-03-28 11:59:00 - 2024-03-28 12:01:00 (0.0 hours)
+2024-03-28 12:31:00 - 2024-03-29 17:31:00 (5.0 hours)
+Food:Artichoke:60
+Food:Apple:95
+Steps:11085
+Steps:6320
+Food:Chicken marsala:2209
+Steps:6320
+Steps:6320

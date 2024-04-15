@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body class="bg-light">
+    <script src="../static/js/script.js"></script>
+    {% extends 'base.html' %}
+    {% block content %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-right:0; margin-left:0; padding-right:0; padding-left:0;">
+        <div class="container">
+            <a class="navbar-brand" href="/">Fitness Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/leaderboard">Leaderboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/community">Community</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+                {% if 'username' in session %}
+                    <span class="navbar-text">
+                        Points: {{ users[session['username']]['points'] }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="widget orange">
+                        <h5 class="card-title">{{ greeting }}</h5>
+                        <p class="card-text">Hi {{ username }}! {{ quote }}</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="widget yellow">
+                                <form method="post" action="/sleep">
+                                    <h2>Sleep Tracker</h2>
+                                    <label for="sleep_start">Sleep Start:</label>
+                                    <input type="datetime-local" id="sleep_start" name="sleep_start" required><br><br>
+                                    <label for="sleep_end">Sleep End:</label>
+                                    <input type="datetime-local" id="sleep_end" name="sleep_end" required><br><br>
+                                    <input class="button" type="submit" value="Submit">
+                                </form>
+                                {% if 'tracker_filename' in session %}
+                                <h3>Your Sleep Tracking:</h3>
+                                <pre>
+                                    {% for line in open(session['tracker_filename'], 'r') %}
+                                        {{ line }}
+                                    {% endfor %}
+                                </pre>
+                            {% endif %}
+                            </div>
+                        </div>
+                            
+                        <div class="col-md-4">
+                            <div class="widget green">
+                                <h1>Water Tracker</h1>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Glass</th>
+                                            <th>Consumed</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Glass 1</td>
+                                            <td><input type="checkbox"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Glass 2</td>
+                                            <td><input type="checkbox"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Glass 3</td>
+                                            <td><input type="checkbox"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Glass 4</td>
+                                            <td><input type="checkbox"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Glass 5</td>
+                                            <td><input type="checkbox"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Glass 6</td>
+                                            <td><input type="checkbox"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Glass 7</td>
+                                            <td><input type="checkbox"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Glass 8</td>
+                                            <td><input type="checkbox"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="widget blue">
+                                <h2>Steps Tracker</h2>
+                                <form action="/step_tracker" method="post" enctype="multipart/form-data">
+                                    <input type="file" name="image" accept="image/*" required>
+                                    <button type="submit">Submit</button>
+                                </form>
+                                <h3>Lifetime Steps:</h3>
+                                <p>Total Steps: {{ step_count }}</p>
+                            </div>
+                        </div>
+                    </div>
+                   
+                 
+                    <div class="widget blue">
+                        <h2>Video Exercise</h2>
+                        <div>
+                            <input type="text" id="activity" placeholder="Enter an activity">
+                            <button onclick="searchVideos()">Search</button>
+                        </div>
+                        <div id="video-container" class="mt-3"></div>
+                        <div id="exercise-info" class="mt-3"></div>
+                        <button id="start-btn" onclick="startExercise()" style="display:none;">Start Exercise</button>
+                        <button id="stop-btn" onclick="stopExercise()" style="display:none;">Stop Exercise</button>
+                    </div>
+                    
+                    
+
+
+                </div>
+                <script src="https://www.youtube.com/iframe_api"></script>
+
+                <script>
+                    let exerciseStartTime;
+                    let exerciseEndTime;
+                    let exerciseDuration = 0;
+                    let exerciseTimer;
+                    let player;
+                
+                    function searchVideos() {
+    const activity = document.getElementById('activity').value;
+    fetch(`/videos?activity=${activity}`)
+        .then(response => response.json())
+        .then(data => {
+            const videoContainer = document.getElementById('video-container');
+            videoContainer.innerHTML = '';
+            if (data.items.length > 0) {
+                const videoId = data.items[0].id.videoId;
+                player = new YT.Player('video-container', {
+                    height: '315',
+                    width: '560',
+                    videoId: videoId,
+                    playerVars: {
+                        'autoplay': 0,
+                        'loop': 1,
+                        'controls': 0,
+                        'rel': 0,
+                        'modestbranding': 1
+                    },
+                    events: {
+                        'onReady': onPlayerReady
+                    }
+                });
+                document.getElementById('start-btn').style.display = 'inline';
+            } else {
+                videoContainer.textContent = 'No videos found';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+                
+                    function onPlayerReady(event) {
+                        event.target.pauseVideo();
+                    }
+                
+                    function startExercise() {
+                        player.playVideo();
+                        exerciseStartTime = Date.now();
+                        exerciseTimer = setInterval(() => {
+                            exerciseDuration = Math.floor((Date.now() - exerciseStartTime) / 1000);
+                            updateExerciseInfo();
+                        }, 1000);
+                        document.getElementById('start-btn').style.display = 'none';
+                        document.getElementById('stop-btn').style.display = 'inline';
+                    }
+                
+                    function stopExercise() {
+                        player.pauseVideo();
+                        exerciseEndTime = Date.now();
+                        clearInterval(exerciseTimer);
+                        exerciseDuration = Math.floor((exerciseEndTime - exerciseStartTime) / 1000);
+                        updateExerciseInfo();
+                        document.getElementById('start-btn').style.display = 'inline';
+                        document.getElementById('stop-btn').style.display = 'none';
+                    }
+                
+                    function updateExerciseInfo() {
+                        const exerciseInfo = document.getElementById('exercise-info');
+                        const minutes = Math.floor(exerciseDuration / 60);
+                        const seconds = exerciseDuration % 60;
+                        exerciseInfo.textContent = `Exercise Duration: ${minutes}m ${seconds}s`;
+                    }
+
+                    const sleepForm = document.getElementById('sleep-form');
+    const sleepStartInput = document.getElementById('sleep_start');
+    const sleepEndInput = document.getElementById('sleep_end');
+
+    sleepForm.addEventListener('submit', function(event) {
+        event.preventDefault(); 
+
+      
+        const sleepStartTime = new Date(sleepStartInput.value).getTime();
+        const sleepEndTime = new Date(sleepEndInput.value).getTime();
+
+    
+        sleepStartInput.disabled = true;
+        sleepEndInput.disabled = true;
+
+        
+        document.body.style.pointerEvents = 'none';
+        document.body.style.opacity = '0.5';
+
+      
+        const sleepDuration = sleepEndTime - sleepStartTime;
+        setTimeout(() => {
+           
+            sleepStartInput.disabled = false;
+            sleepEndInput.disabled = false;
+
+        
+            document.body.style.pointerEvents = 'auto';
+            document.body.style.opacity = '1.0';
+
+            
+            sleepForm.submit();
+        }, sleepDuration);
+    });
+
+    
+                </script>
+                
+                
+                <div class="col-md-4">
+                    <div class="widget green">
+                        <h2>Posts</h2>
+                        <div id="posts-container" class="overflow-auto" style="max-height: 425px;">
+                            {% for post in posts %}
+                                <div class="post yellow">
+                                    <img src="{{ post.image }}" alt="Post Image">
+                                    <p>{{ post.caption }}</p>
+                                    <p class="card-text">Posted by: {{ post.username }}</p>
+                                    <div>
+                                        <form action={{url_for('like_post', post_index=post.index)}} method="post" style="display: inline;">
+                                            <button type="submit" class="btn btn-link" style="color: red;">
+                                                <i class="bi bi-heart"></i> LIKE
+                                            </button>
+
+                                            <p>Likes - {{ post.likes }}</p>
+                                        </form>
+                                        </form>
+                                        <form action={{url_for('share_post', post_index=post.index)}} method="post" style="display: inline;">
+                                            
+                                            <button type="submit" class="btn btn-link">
+                                                <i class="bi bi-share"></i> SHARE
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#commentModal{{ loop.index }}">
+                                            <i class="bi bi-chat"></i> COMMENT
+                                        </button>
+                                    </div>
+                                  
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#postModal" style="border-radius:50%">
+                           Add Post<i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                    
+                     
+                    <div class="widget purple">
+                      
+                        <h2>Calorie Tracker</h2>
+    <form action="/add_food" method="post">
+        <label for="food_item">Food Item:</label>
+        <input type="text" id="food_item" name="food_item" required>
+        <button type="submit">Add</button>
+    </form>
+    <h3>Today's Calories:</h3>
+    <p>Total Calories: {{ total_calories }}</p>
+                  
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% for post in posts %}
+        <div class="modal fade" id="commentModal{{ loop.index }}" tabindex="-1" aria-labelledby="commentModalLabel{{ loop.index }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="commentModalLabel{{ loop.index }}">Add Comment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{url_for('comment_post', post_index=post.index)}}" method="post">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Comment</label>
+                                <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                            </div>
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Comment</button>
+                            </div>
+                            </form>
+                            </div>
+                            </div>
+                            </div>
+                            {% endfor %}
+                            <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="postModalLabel">Add New Post</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="/add_post" method="post" enctype="multipart/form-data">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="image" class="form-label">Image</label>
+                                                    <input type="file" class="form-control" id="image" name="image" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="caption" class="form-label">Caption</label>
+                                                    <textarea class="form-control" id="caption" name="caption" rows="3" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Post</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </body>
+                    </html>                        
