@@ -1,1 +1,1 @@
-[{'user': 'Ojas', 'chat_spaces': [{'chat_name': 'Chatspacetrial', 'chat_code': 'Rupkatha', 'chat_members': ['Ojas']}, {'chat_name': 'ChatSpaceTrial1', 'chat_code': 'Rupkatha', 'chat_members': ['Ojas']}]}]
+[]
