@@ -1,5 +1,5 @@
-# Codingal-24
-Our team's project for the codingal hackathon of 2024. More description coming soon
+# Health Harbor
+Our team's project for hackathon of 2024. More description coming soon
 
 Introduction:
 Health Harbour is a comprehensive fitness platform designed to support users in achieving their fitness goals through a combination of community engagement, personalized guidance, and advanced tracking features. The platform offers a range of tools, including a community chat with a chatbot named Fitbot, sentiment analysis, toxicity detection, censorship, leaderboard, water tracker, steps tracker using Pytesseract for OCR to get steps from fitness bands, sleep tracker, public posts, calorie tracker using CSV, and video exercise using the YouTube API. The project is inspired by the belief in the power of community support to enhance individual fitness journeys.
