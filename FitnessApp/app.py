@@ -714,8 +714,8 @@ def get_total_steps():
 
 import json
 import requests
-url = 'http://127.0.0.1:8000/toxicity_pred'
-furl = 'http://127.0.0.1:8002/feeling_pred'
+url = 'https://1a78-35-231-209-227.ngrok-free.app/toxicity_pred'
+furl = 'https://7d13-35-221-10-117.ngrok-free.app/feeling_pred'
 
 import re
 
@@ -905,6 +905,7 @@ def disconnect():
 def generate_dalle_response(message):
     import openai
 
+    openai.api_key = os.environ["OPENAI_API_KEY"]
 
     prompt = message
 
@@ -918,6 +919,7 @@ def generate_dalle_response(message):
 def generate_chatgpt_response(message):
     import openai
 
+    openai.api_key = os.environ["OPENAI_API_KEY"]
     # API key here
 
     prompt = message
