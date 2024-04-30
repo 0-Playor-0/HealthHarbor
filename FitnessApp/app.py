@@ -10,7 +10,7 @@ from string import ascii_uppercase
 import cv2
 import numpy as np
 
-import pytesseract
+#import pytesseract
 #pytesseract.pytesseract.tesseract_cmd = r'C:\USers\Ashish\AppData\Local\Program Files\Tesseract-OCR\tesseract.exe'
 
 import requests
@@ -590,11 +590,12 @@ def leaderboard():
             break
     print(position+1)
     return render_template('leaderboard.html', leaderboard=leaderboard_data)
-
+'''
 @app.route('/step_tracker', methods=['POST'])
 def step_tracker():
     step_count = get_step_count()
     return step_count
+'''
 
 #Extra Code for API's and easy access ---------------------------------------------------------------------------->
 
@@ -936,7 +937,7 @@ def generate_chatgpt_response(message):
 
     return response.choices[0].message.content.strip()
 
-
+'''
 def get_step_count():
     if 'image' not in request.files:
         return '0'
@@ -965,7 +966,7 @@ def get_step_count():
 def extract_numerical_part(text):
     numerical_part = ''.join(filter(str.isdigit, text))
     return int(numerical_part) if numerical_part else 0
-
+'''
     
 if __name__ == '__main__':
     socketio.run(app)
